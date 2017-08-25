@@ -122,6 +122,7 @@ func TestCommand(mainFile, testFile string) bool {
 	cmd := exec.Command("go", "test", mainFile, testFile, "-v")
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
 	err := cmd.Run()
 	if err != nil {
 		return false
