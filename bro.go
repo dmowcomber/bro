@@ -131,6 +131,7 @@ func TestCommand(mainFile, testFile string) bool {
 
 func main() {
 	app := cli.NewApp()
+	app.Version = "0.1.0"
 	app.Name = "bro"
 	app.Usage = "I'll help you with tests"
 	app.Action = func(c *cli.Context) {
