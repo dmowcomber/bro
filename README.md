@@ -2,19 +2,21 @@
 
 Hey, I'll help you with tests
 
+##### github.com/dmowcomber/bro
+This is a fork of github.com/marioidival/bro but test packages instead of files
 
 ### Install
-`go get github.com/marioidival/bro`
+`go get github.com/dmowcomber/bro`
 
 ### Use
 ```
-  cd /you/folder/
-  
+  cd /your/go/source/folder/
+
   bro
 ```
 or
 ```
-bro /path/folder/project/
+bro /path/of/go/project/
 ```
 
 ### See Demo

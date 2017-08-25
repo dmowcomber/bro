@@ -71,7 +71,7 @@ func (b *Bro) LookThem() {
 		if ntime.Sub(modtime) > 0 {
 			b.Files[file] = ntime
 			log.Printf("[INFO]: Changed files %s\n", file)
-			PrepareCmd(file)
+			PrepareCmdPackageTest(file)
 		}
 
 	}
@@ -93,6 +93,15 @@ func HasTestFile(dirFile, nameFile string) bool {
 	return true
 }
 
+func PrepareCmdPackageTest(path string) bool {
+	nameFile := filepath.Base(path)
+	dirFile := filepath.Dir(path)
+	if !IsTestFile(nameFile) && !HasTestFile(dirFile, strings.Replace(nameFile, ".go", "", -1)) {
+		log.Printf("[WARNING]: %s need of test man!", nameFile)
+	}
+	return TestCommand(dirFile)
+}
+
 func PrepareCmd(path string) bool {
 	nameFile := filepath.Base(path)
 	dirFile := filepath.Dir(path)
@@ -100,13 +109,13 @@ func PrepareCmd(path string) bool {
 	var mainFile string
 	var testFile string
 
-	if IsTestFile(nameFile) == true {
+	if IsTestFile(nameFile) {
 		testFile = path
 		mainFile = filepath.Join(dirFile, strings.Replace(nameFile, "_test.go", ".go", -1))
 		return TestCommand(mainFile, testFile)
 	}
 
-	if HasTestFile(dirFile, strings.Replace(nameFile, ".go", "", -1)) == true {
+	if HasTestFile(dirFile, strings.Replace(nameFile, ".go", "", -1)) {
 		testFile = filepath.Join(dirFile, strings.Replace(nameFile, ".go", "_test.go", -1))
 		mainFile = path
 		return TestCommand(mainFile, testFile)
@@ -114,12 +123,20 @@ func PrepareCmd(path string) bool {
 
 	log.Printf("[WARNING]: %s need of test man!", nameFile)
 	return false
-
 }
 
-func TestCommand(mainFile, testFile string) bool {
+func TestCommand(testPath ...string) bool {
+	// remove GOPATH from test paths
+	goPath := os.Getenv("GOPATH")
+	// TODO: remove possible trailing slash on GOPATH
+	for i, _ := range testPath {
+		testPath[i] = strings.Replace(testPath[i], goPath+"/src/", "", -1)
+	}
 
-	cmd := exec.Command("go", "test", mainFile, testFile, "-v")
+	// TODO: add optional -v flag to bro that will add the -v flag to `go test`
+
+	args := append([]string{"test"}, testPath...)
+	cmd := exec.Command("go", args...)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
